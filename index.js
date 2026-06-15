@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const jobRoutes = require("./routes/jobRoutes");
+const bidRoutes = require("./routes/bidRoutes");
 
 // === Global Middleware ===
 app.use(cors());
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 
 // === Routes ===
 app.use("/jobs", jobRoutes);
+app.use("/bids", bidRoutes);
 
 // === Server ===
 app.listen(port, () => {
