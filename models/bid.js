@@ -27,6 +27,11 @@ const bidSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      required: true,
+      enum: ["Web Development", "Graphic Design", "Digital Marketing"],
+    },
     status: {
       type: String,
       enum: ["Pending", "In Progress", "Completed", "Rejected"],
