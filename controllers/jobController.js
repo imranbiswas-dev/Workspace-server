@@ -98,9 +98,23 @@ const allJobsForPagination = async (req, res) => {
   try {
     const size = parseInt(req.query.size);
     const page = parseInt(req.query.page) - 1;
+    const filter = req.query.filter;
+    const sort = req.query.sort;
+    const search = req.query.search;
     console.log(size, page);
 
-    const result = await Job.find()
+    // === Filer by category ===
+    const query = {
+      job_title: { $regex: search, $options: "i" },
+    };
+    if (filter) query.category = filter;
+
+    // === sort ===
+    let sortOption = {};
+    if (sort) sortOption.deadline = sort === "asc" ? 1 : -1;
+
+    const result = await Job.find(query)
+      .sort(sortOption)
       .skip(page * size)
       .limit(size);
     res.status(200).send(result);
@@ -115,7 +129,19 @@ const allJobsForPagination = async (req, res) => {
 // === Get all job for Count data ===
 const allJObsForCount = async (req, res) => {
   try {
-    const result = await Job.countDocuments();
+    const filter = req.query.filter;
+    const search = req.query.search;
+
+    let query = {};
+
+    if (filter) {
+      query.category = filter;
+    }
+
+    if (search) {
+      query.job_title = { $regex: search, $options: "i" };
+    }
+    const result = await Job.countDocuments(query);
     res.json({ count: result });
   } catch (error) {
     res.status(500).send({
