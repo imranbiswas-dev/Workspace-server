@@ -44,6 +44,16 @@ const getUserById = async (req, res) => {
 const getJobByEmail = async (req, res) => {
   try {
     const email = req.params.email;
+    const tokenEmail = req.user.email;
+
+    // Double check
+    if (tokenEmail !== email) {
+      return res.status(403).send({ message: "Forbidden Access" });
+    }
+
+    console.log("Param Email:", email);
+    console.log("Token Email:", tokenEmail);
+
     const result = await Job.find({ "buyer.email": email });
     res.send(result);
   } catch (error) {
@@ -83,6 +93,38 @@ const updateJob = async (req, res) => {
   }
 };
 
+// === get all jobs form db for Pagination ===
+const allJobsForPagination = async (req, res) => {
+  try {
+    const size = parseInt(req.query.size);
+    const page = parseInt(req.query.page) - 1;
+    console.log(size, page);
+
+    const result = await Job.find()
+      .skip(page * size)
+      .limit(size);
+    res.status(200).send(result);
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to update job",
+      error: error.message,
+    });
+  }
+};
+
+// === Get all job for Count data ===
+const allJObsForCount = async (req, res) => {
+  try {
+    const result = await Job.countDocuments();
+    res.json({ count: result });
+  } catch (error) {
+    res.status(500).send({
+      message: "Failed to update job",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createJob,
   getJob,
@@ -90,4 +132,6 @@ module.exports = {
   getJobByEmail,
   deleteJob,
   updateJob,
+  allJobsForPagination,
+  allJObsForCount,
 };
